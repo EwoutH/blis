@@ -70,7 +70,7 @@ addons:
      - sourceline: 'ppa:ubuntu-toolchain-r/test'
     packages:
     - gcc-9
-    - binutils-2.26
+    - binutils
     - clang
 script:
 - export DIST_PATH=.
