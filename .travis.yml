@@ -10,60 +10,40 @@ env:
 matrix:
   include:
   # full testsuite (all tests except for mixed datatype)
-  - os: linux
-    compiler: gcc
-    env: OOT=0 TEST=1 SDE=0 THR="none" CONF="auto"
+  - env: OOT=0 TEST=1 SDE=0 THR="none" CONF="auto"
   # mixed-datatype testsuite (gemm_nn only)
-  - os: linux
-    compiler: gcc
-    env: OOT=0 TEST=MD SDE=0 THR="none" CONF="auto"
+  - env: OOT=0 TEST=MD SDE=0 THR="none" CONF="auto"
   # salt testsuite (fast set of operations+parameters)
-  - os: linux
-    compiler: gcc
-    env: OOT=0 TEST=SALT SDE=0 THR="none" CONF="auto"
+  - env: OOT=0 TEST=SALT SDE=0 THR="none" CONF="auto"
   # test x86_64 ukrs with SDE
-  - os: linux
-    compiler: gcc
-    env: OOT=0 TEST=0 SDE=1 THR="none" CONF="x86_64"
+  - env: OOT=0 TEST=0 SDE=1 THR="none" CONF="x86_64"
   # openmp build
-  - os: linux
-    compiler: gcc
-    env: OOT=0 TEST=0 SDE=0 THR="openmp" CONF="auto"
+  - env: OOT=0 TEST=0 SDE=0 THR="openmp" CONF="auto"
   # pthreads build
-  - os: linux
-    compiler: gcc
-    env: OOT=0 TEST=0 SDE=0 THR="pthreads" CONF="auto"
+  - env: OOT=0 TEST=0 SDE=0 THR="pthreads" CONF="auto"
   # out-of-tree build
-  - os: linux
-    compiler: gcc
-    env: OOT=1 TEST=0 SDE=0 THR="none" CONF="auto"
+  - env: OOT=1 TEST=0 SDE=0 THR="none" CONF="auto"
   # clang build
-  - os: linux
-    compiler: clang
+  - compiler: clang
     env: OOT=0 TEST=0 SDE=0 THR="none" CONF="auto"
   # macOS with system compiler (clang)
   - os: osx
     compiler: clang
     env: OOT=0 TEST=1 SDE=0 THR="none" CONF="auto"
   # cortexa15 build and fast testsuite (qemu)
-  - os: linux
-    compiler: arm-linux-gnueabihf-gcc
+  - compiler: arm-linux-gnueabihf-gcc
     env: OOT=0 TEST=FAST SDE=0 THR="none" CONF="cortexa15" \
       PACKAGES="gcc-arm-linux-gnueabihf qemu-system-arm qemu-user" \
       TESTSUITE_WRAPPER="qemu-arm -cpu cortex-a15 -L /usr/arm-linux-gnueabihf/"
   # cortexa57 build and fast testsuite (qemu)
-  - os: linux
-    compiler: aarch64-linux-gnu-gcc
+  - compiler: aarch64-linux-gnu-gcc
     env: OOT=0 TEST=FAST SDE=0 THR="none" CONF="cortexa57" \
       PACKAGES="gcc-aarch64-linux-gnu qemu-system-arm qemu-user" \
       TESTSUITE_WRAPPER="qemu-aarch64 -L /usr/aarch64-linux-gnu/"
-install:
-- if [ "$TRAVIS_OS_NAME" = "linux" ]; then sudo rm -f /usr/bin/as; fi
-- if [ "$TRAVIS_OS_NAME" = "linux" ]; then sudo ln -s /usr/lib/binutils-2.26/bin/as /usr/bin/as; fi
-- if [ "$TRAVIS_OS_NAME" = "linux" ]; then sudo rm -f /usr/bin/ld; fi
-- if [ "$TRAVIS_OS_NAME" = "linux" ]; then sudo ln -s /usr/lib/binutils-2.26/bin/ld /usr/bin/ld; fi
-- if [ "$CC" = "gcc" ] && [ "$TRAVIS_OS_NAME" = "linux" ]; then export CC="gcc-6"; fi
-- if [ -n "$PACKAGES" ]; then sudo apt-get install -y $PACKAGES; fi
+  # full testsuite on Arm64 (all tests except for mixed datatype)
+  - arch: arm64
+    env: OOT=0 TEST=1 SDE=0 THR="none" CONF="auto"
+
 addons:
   apt:
     sources:
@@ -72,6 +52,15 @@ addons:
     - gcc-9
     - binutils
     - clang
+
+install:
+- if [ "$TRAVIS_OS_NAME" = "linux" ]; then sudo rm -f /usr/bin/as; fi
+- if [ "$TRAVIS_OS_NAME" = "linux" ]; then sudo ln -s /usr/lib/binutils-2.26/bin/as /usr/bin/as; fi
+- if [ "$TRAVIS_OS_NAME" = "linux" ]; then sudo rm -f /usr/bin/ld; fi
+- if [ "$TRAVIS_OS_NAME" = "linux" ]; then sudo ln -s /usr/lib/binutils-2.26/bin/ld /usr/bin/ld; fi
+- if [ "$CC" = "gcc" ] && [ "$TRAVIS_OS_NAME" = "linux" ]; then export CC="gcc-6"; fi
+- if [ -n "$PACKAGES" ]; then sudo apt-get install -y $PACKAGES; fi
+
 script:
 - export DIST_PATH=.
 - pwd
